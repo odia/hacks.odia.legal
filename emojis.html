@@ -84,6 +84,7 @@
            span.appendChild(output);
 
            span.classList.add('vbox');
+           span.id = `vbox-${id}-${i}`
          } else {
            input.name = id;
            span.appendChild(input);
@@ -126,7 +127,6 @@
 
        const value = e.target.value || selected;
        selected = value;
-
        const [table, caption] = createElements('table', 'caption');
        caption.textContent = `${config.count} resultados`;
        table.appendChild(caption);
@@ -141,6 +141,7 @@
        }
        selector.removeChild(selector.lastChild);
        selector.appendChild(table);
+       document.getElementById('vbox-select-config-length').style.display = selected === 'numbers' ? 'none' : 'flex'
      });
 
      const configForm = createForm('select-config', 'Configuracion', {
