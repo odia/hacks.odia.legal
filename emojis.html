@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway%20Heavy|Merriweather">
     <title>Creador de pins/emojis aleatorios de O.D.I.A.</title>
     <script src="https://rawgit.com/theraot/emoji/master/emoji.js" charset="utf-8"></script>
+    <script src="data/palabras.js" charset="utf-8"></script>
     <style>
      body {
          font: 14px Merriweather;
@@ -99,19 +100,21 @@
      let selected = 'emojis';
 
      const getEmoji = () => emoji[Math.floor(Math.random()*emoji.length)];
+     const getWord = () => banco_de_palabras[Math.floor(Math.random()*banco_de_palabras.length)];
      const randomFuncs = {
        emojis: () => getEmoji() + getEmoji() + getEmoji() + getEmoji(),
+       words: () => [getWord(), getWord(), getWord(), getWord()].join('-'),
        numbers: () => Math.floor(Math.random()*count*1000)
      }
 
      const typeForm = createForm('select-type', 'Seleccione el tipo', {
        emojis: {type: 'radio', label: 'Emojis'},
+       words: {type: 'radio', label: 'Palabras'},
        numbers: {type: 'radio', label: 'Numero'},
      }, e => {
        e.preventDefault();
 
        const value = e.target.value || selected;
-       console.error(count, value, e);
        selected = value;
 
        const [table, caption] = createElements('table', 'caption');
