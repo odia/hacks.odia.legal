@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway%20Heavy|Merriweather">
+    <title>Creador de pins/emojis aleatorios de O.D.I.A.</title>
+    <script src="https://rawgit.com/theraot/emoji/master/emoji.js" charset="utf-8"></script>
+    <style>
+     body {
+         font: 14px Merriweather;
+         background: #feead1;
+     }
+     #container {
+         margin: auto;
+         max-width: 800px;
+         min-width: 600px;
+     }
+     .box {
+         padding: 40px;
+         margin: 10px 0;
+     }
+     .color1 { background: #333333 !important; }
+     .color2 { background: #403136 !important; }
+     .color3 { background: #ce342c !important; }
+     .color4 { background: #feead1 !important; }
+     .color5 { background: #007a83 !important; }
+     .color6 { background: #bdd2ce !important; }
+
+     #select-type fieldset {
+         display: flex;
+     }
+     #select-type fieldset span {
+         flex: 1;
+     }
+     .vbox {
+         display: flex;
+         flex-direction: vertical;
+     }
+    </style>
+  </head>
+  <body>
+    <div id="select-type" class="box type">
+      <h1>Creador de pins/emojis de O.D.I.A.</h1>
+    </div>
+    <script>
+     const createElements = (...args) => args.map(document.createElement.bind(document));
+     const createForm = (id, title, fields = {}, onChange = () => {}) => {
+       const [form, fieldset, legend] = createElements('form', 'fieldset', 'legend');
+       legend.textContent = title;
+       form.id = id;
+       form.method = 'post';
+       form.action = '#';
+       form.onchange = onChange;
+
+       fieldset.appendChild(legend);
+       form.appendChild(fieldset);
+
+       const entries = Object.entries(fields);
+       for (const [i, props] of entries) {
+         const [span, input, label] = createElements('span', 'input', 'label');
+         props.id = `${id}_${i}`;
+         props.name = id;
+         props.value = props.value || i;
+         if (i === entries[0][0]) {
+           props.checked = true;
+           // XXX: hack…
+           setTimeout(() => onChange({preventDefault: () => {}, target: input}), 200);
+         }
+
+         Object.assign(input, props);
+         label.for = props.id;
+         label.textContent = props.label;
+
+         if (props.type === 'range') {
+           const output = document.createElement('output');
+           output.setAttribute('for', props.id);
+           output.textContent = input.value;
+           input.addEventListener('input', () => output.textContent = input.value);
+           span.appendChild(label);
+           span.appendChild(input);
+           span.appendChild(output);
+
+           span.classList.add('vbox');
+         } else {
+           span.appendChild(input);
+           span.appendChild(label);
+         }
+
+         fieldset.appendChild(span);
+       }
+
+       return form;
+     }
+
+     const selector = document.getElementById('select-type');
+     let count = 100;
+     let selected = 'emojis';
+
+     const getEmoji = () => emoji[Math.floor(Math.random()*emoji.length)];
+     const randomFuncs = {
+       emojis: () => getEmoji() + getEmoji() + getEmoji() + getEmoji(),
+       numbers: () => Math.floor(Math.random()*count*1000)
+     }
+
+     const typeForm = createForm('select-type', 'Seleccione el tipo', {
+       emojis: {type: 'radio', label: 'Emojis'},
+       numbers: {type: 'radio', label: 'Numero'},
+     }, e => {
+       e.preventDefault();
+
+       const value = e.target.value || selected;
+       console.error(count, value, e);
+       selected = value;
+
+       const [table, caption] = createElements('table', 'caption');
+       caption.textContent = `${count} resultados`;
+       table.appendChild(caption);
+
+       for (let i = 1; i <= count; i++) {
+         const [tr, ck, cv] = createElements('tr', 'td', 'td');
+         ck.textContent = i;
+         cv.textContent = randomFuncs[value]();
+         tr.appendChild(ck);
+         tr.appendChild(cv);
+         table.appendChild(tr);
+       }
+       selector.removeChild(selector.lastChild);
+       selector.appendChild(table);
+     });
+
+     const configForm = createForm('select-config', 'Configuracion', {
+       count: {
+         type: 'range',
+         min: 1, max: 3000,
+         value: count,
+         label: 'Cantidad de identificadores a generar'
+       }
+     }, e => {
+         e.preventDefault();
+
+         count = e.target.value;
+         typeForm.dispatchEvent(new Event('change'));
+     });
+
+     selector.appendChild(typeForm);
+     selector.appendChild(configForm);
+
+     selector.appendChild(document.createElement('div'));
+    </script>
+  </body>
+</html>
