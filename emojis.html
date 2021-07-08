@@ -107,6 +107,9 @@
 
      const getEmoji = () => emoji[Math.floor(Math.random()*emoji.length)];
      const getWord = () => banco_de_palabras[Math.floor(Math.random()*banco_de_palabras.length)];
+     const getNumber = () => new String(Math.floor(Math.random()*config.count*1000))
+       .padStart(`${config.count*1000}`.length, '0');
+
      const ma = (size, cb) => {
        const a = [];
        for (let i = 0; i< size; i++)
@@ -116,7 +119,8 @@
      const randomFuncs = {
        emojis: () => ma(config.length, getEmoji).join(''),
        words: () => ma(config.length, getWord).join('-'),
-       numbers: () => Math.floor(Math.random()*config.count*1000)
+       numbers: getNumber
+
      }
 
      const typeForm = createForm('select-type', 'Seleccione el tipo', {
