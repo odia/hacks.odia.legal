@@ -62,7 +62,7 @@
        for (const [i, props] of entries) {
          const [span, input, label] = createElements('span', 'input', 'label');
          props.id = `${id}_${i}`;
-         props.name = id;
+         props.name = i;
          props.value = props.value || i;
          if (i === entries[0][0]) {
            props.checked = true;
@@ -85,6 +85,7 @@
 
            span.classList.add('vbox');
          } else {
+           input.name = id;
            span.appendChild(input);
            span.appendChild(label);
          }
@@ -96,15 +97,24 @@
      }
 
      const selector = document.getElementById('select-type');
-     let count = 100;
+     const config = {
+       count: 100,
+       length: 4
+     }
      let selected = 'emojis';
 
      const getEmoji = () => emoji[Math.floor(Math.random()*emoji.length)];
      const getWord = () => banco_de_palabras[Math.floor(Math.random()*banco_de_palabras.length)];
+     const ma = (size, cb) => {
+       const a = [];
+       for (let i = 0; i< size; i++)
+         a.push(cb())
+       return a;
+     }
      const randomFuncs = {
-       emojis: () => getEmoji() + getEmoji() + getEmoji() + getEmoji(),
-       words: () => [getWord(), getWord(), getWord(), getWord()].join('-'),
-       numbers: () => Math.floor(Math.random()*count*1000)
+       emojis: () => ma(config.length, getEmoji).join(''),
+       words: () => ma(config.length, getWord).join('-'),
+       numbers: () => Math.floor(Math.random()*config.count*1000)
      }
 
      const typeForm = createForm('select-type', 'Seleccione el tipo', {
@@ -118,10 +128,10 @@
        selected = value;
 
        const [table, caption] = createElements('table', 'caption');
-       caption.textContent = `${count} resultados`;
+       caption.textContent = `${config.count} resultados`;
        table.appendChild(caption);
 
-       for (let i = 1; i <= count; i++) {
+       for (let i = 1; i <= config.count; i++) {
          const [tr, ck, cv] = createElements('tr', 'td', 'td');
          ck.textContent = i;
          cv.textContent = randomFuncs[value]();
@@ -134,17 +144,13 @@
      });
 
      const configForm = createForm('select-config', 'Configuracion', {
-       count: {
-         type: 'range',
-         min: 1, max: 3000,
-         value: count,
-         label: 'Cantidad de identificadores a generar'
-       }
+       count: {type: 'range', min: 1, max: 3000, value: config.count, label: '# resultados'},
+       length: {type: 'range', min: 1, max: 10, value: config.length, label: 'largo'}
      }, e => {
-         e.preventDefault();
+       e.preventDefault();
 
-         count = e.target.value;
-         typeForm.dispatchEvent(new Event('change'));
+       config[e.target.name] = e.target.value
+       typeForm.dispatchEvent(new Event('change'));
      });
 
      selector.appendChild(typeForm);
