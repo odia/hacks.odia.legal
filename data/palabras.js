@@ -1,3 +1,9 @@
+// taken from https://es.wiktionary.org/wiki/Ap%C3%A9ndice:1000_palabras_b%C3%A1sicas_en_espa%C3%B1ol
+/*
+El texto está disponible bajo la Licencia Creative Commons Atribución-CompartirIgual 3.0; pueden aplicarse términos adicionales. Véase Términos de uso para más detalles.
+https://foundation.wikimedia.org/wiki/Terms_of_Use/es
+ */
+
 var banco_de_palabras = [
   "Animales",
   "Economía",
