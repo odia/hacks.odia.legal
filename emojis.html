@@ -64,7 +64,13 @@
          this.last = this.seed;
        }
      }
-     const rng = new PseudoRNG();
+     const url = new URL(document.location);
+     const rng = new PseudoRNG(url.searchParams.get('seed'));
+     url.searchParams.set('seed', rng.seed);
+     url.searchParams.set('count', url.searchParams.get('count') || 100);
+     url.searchParams.set('length', url.searchParams.get('length') || 4);
+
+     window.history.pushState({}, "", url.toString());
 
      const createElements = (...args) => args.map(document.createElement.bind(document));
      const createForm = (id, title, fields = {}, onChange = () => {}) => {
@@ -118,16 +124,12 @@
      }
 
      const selector = document.getElementById('select-type');
-     const config = {
-       count: 100,
-       length: 4
-     }
      let selected = 'emojis';
 
      const getEmoji = () => emoji[Math.floor(rng.random()*emoji.length)];
      const getWord = () => banco_de_palabras[Math.floor(rng.random()*banco_de_palabras.length)];
-     const getNumber = () => new String(Math.floor(rng.random()*config.count*1000))
-       .padStart(`${config.count*1000}`.length, '0');
+     const getNumber = () => new String(Math.floor(rng.random()*url.searchParams.get('count')*1000))
+       .padStart(`${url.searchParams.get('count')*1000}`.length, '0');
 
      const ma = (size, cb) => {
        const a = [];
@@ -136,8 +138,8 @@
        return a;
      }
      const randomFuncs = {
-       emojis: () => ma(config.length, getEmoji).join(''),
-       words: () => ma(config.length, getWord).join('-'),
+       emojis: () => ma(url.searchParams.get('length'), getEmoji).join(''),
+       words: () => ma(url.searchParams.get('length'), getWord).join('-'),
        numbers: getNumber
 
      }
@@ -152,11 +154,11 @@
        const value = e.target.value || selected;
        selected = value;
        const [table, caption] = createElements('table', 'caption');
-       caption.textContent = `${config.count} resultados`;
+       caption.textContent = `${url.searchParams.get('count')} resultados`;
        table.appendChild(caption);
 
        rng.reset();
-       for (let i = 1; i <= config.count; i++) {
+       for (let i = 1; i <= url.searchParams.get('count'); i++) {
          const [tr, ck, cv] = createElements('tr', 'td', 'td');
          ck.textContent = i;
          cv.textContent = randomFuncs[value]();
@@ -170,12 +172,13 @@
      });
 
      const configForm = createForm('select-config', 'Configuracion', {
-       count: {type: 'range', min: 1, max: 3000, value: config.count, label: '# resultados'},
-       length: {type: 'range', min: 1, max: 10, value: config.length, label: 'largo'}
+       count: {type: 'range', min: 1, max: 3000, value: url.searchParams.get('count'), label: '# resultados'},
+       length: {type: 'range', min: 1, max: 10, value: url.searchParams.get('length'), label: 'largo'}
      }, e => {
        e.preventDefault();
 
-       config[e.target.name] = e.target.value
+       url.searchParams.set(e.target.name, e.target.value);
+       window.history.pushState({}, "", url.toString());
        typeForm.dispatchEvent(new Event('change'));
      });
 
