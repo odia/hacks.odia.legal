@@ -47,6 +47,25 @@
       <h1>Creador de pins/emojis de O.D.I.A.</h1>
     </div>
     <script>
+
+     // generated with primesieve
+     const PRIME_CAP = 2132929277;
+     const MINOR_PRIME = 109859;
+     class PseudoRNG {
+       constructor (seed) {
+         this.seed = seed || Math.random()*PRIME_CAP;
+         this.reset();
+       }
+       random () {
+         this.last = MINOR_PRIME * this.last % PRIME_CAP;
+         return this.last / PRIME_CAP;
+       }
+       reset() {
+         this.last = this.seed;
+       }
+     }
+     const rng = new PseudoRNG();
+
      const createElements = (...args) => args.map(document.createElement.bind(document));
      const createForm = (id, title, fields = {}, onChange = () => {}) => {
        const [form, fieldset, legend] = createElements('form', 'fieldset', 'legend');
@@ -105,9 +124,9 @@
      }
      let selected = 'emojis';
 
-     const getEmoji = () => emoji[Math.floor(Math.random()*emoji.length)];
-     const getWord = () => banco_de_palabras[Math.floor(Math.random()*banco_de_palabras.length)];
-     const getNumber = () => new String(Math.floor(Math.random()*config.count*1000))
+     const getEmoji = () => emoji[Math.floor(rng.random()*emoji.length)];
+     const getWord = () => banco_de_palabras[Math.floor(rng.random()*banco_de_palabras.length)];
+     const getNumber = () => new String(Math.floor(rng.random()*config.count*1000))
        .padStart(`${config.count*1000}`.length, '0');
 
      const ma = (size, cb) => {
@@ -136,6 +155,7 @@
        caption.textContent = `${config.count} resultados`;
        table.appendChild(caption);
 
+       rng.reset();
        for (let i = 1; i <= config.count; i++) {
          const [tr, ck, cv] = createElements('tr', 'td', 'td');
          ck.textContent = i;
