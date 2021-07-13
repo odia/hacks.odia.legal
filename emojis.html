@@ -53,7 +53,7 @@
      const MINOR_PRIME = 109859;
      class PseudoRNG {
        constructor (seed) {
-         this.seed = seed || Math.random()*PRIME_CAP;
+         this.seed = seed || Math.floor(Math.random()*PRIME_CAP);
          this.reset();
        }
        random () {
