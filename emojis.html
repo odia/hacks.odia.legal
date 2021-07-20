@@ -141,7 +141,36 @@
        emojis: () => ma(url.searchParams.get('length'), getEmoji).join(''),
        words: () => ma(url.searchParams.get('length'), getWord).join('-'),
        numbers: getNumber
+     }
 
+     const drawTable = (type, filter = null) => {
+       const [table, caption] = createElements('table', 'caption');
+       let rows = 0;
+       caption.textContent = `${url.searchParams.get('count')} resultados`;
+       table.appendChild(caption);
+
+       rng.reset();
+       for (let i = 1; i <= url.searchParams.get('count'); i++) {
+         const v = randomFuncs[type]();
+         if (filter && !v.match(filter))
+           continue;
+
+         const [tr, ck, cv] = createElements('tr', 'td', 'td');
+         ck.textContent = i;
+         cv.textContent = v;
+         tr.appendChild(ck);
+         tr.appendChild(cv);
+         table.appendChild(tr);
+         rows++;
+       }
+
+       if (!rows) {
+         const [span] = createElements('span');
+         span.textContent = "No se encontro nada...";
+         table.appendChild(span);
+       }
+       const results = document.getElementById('results');
+       results.lastChild.replaceWith(table);
      }
 
      const typeForm = createForm('select-type', 'Seleccione el tipo', {
@@ -152,23 +181,12 @@
        e.preventDefault();
 
        const value = e.target.value || selected;
+       const lengthSelector = document.getElementById('vbox-select-config-length');
        selected = value;
-       const [table, caption] = createElements('table', 'caption');
-       caption.textContent = `${url.searchParams.get('count')} resultados`;
-       table.appendChild(caption);
 
-       rng.reset();
-       for (let i = 1; i <= url.searchParams.get('count'); i++) {
-         const [tr, ck, cv] = createElements('tr', 'td', 'td');
-         ck.textContent = i;
-         cv.textContent = randomFuncs[value]();
-         tr.appendChild(ck);
-         tr.appendChild(cv);
-         table.appendChild(tr);
-       }
-       selector.removeChild(selector.lastChild);
-       selector.appendChild(table);
-       document.getElementById('vbox-select-config-length').style.display = selected === 'numbers' ? 'none' : 'flex'
+       lengthSelector.style.display = selected === 'numbers' ? 'none' : 'flex';
+       drawTable(value);
+
      });
 
      const configForm = createForm('select-config', 'Configuracion', {
